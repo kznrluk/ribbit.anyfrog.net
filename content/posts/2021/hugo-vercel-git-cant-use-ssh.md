@@ -55,7 +55,7 @@ WARN 2021/12/04 09:28:12 found no layout file for "HTML" for kind "taxonomy": Yo
 https://github.com/vercel/vercel/discussions/4566#discussioncomment-479622
 > Vercel supports Git submodules but only cloning them via HTTP or HTTPS, not SSH which is the default.
 
-このエラー文じゃわからんだろ...😇 と思いつつ、GitのConfigを参照して下記のように修正。
+このエラー文じゃわからんだろ...😇 と思いつつ、`.gitmodules`を参照して下記のように修正。
 
 ```plain
 [remote "origin"]
@@ -64,4 +64,4 @@ https://github.com/vercel/vercel/discussions/4566#discussioncomment-479622
         fetch = +refs/heads/*:refs/remotes/origin/*
 ```
 
-見えるようになった？
+見えるようになった。
