@@ -1,7 +1,7 @@
-baseURL: "https://ribbit.anyfrog.net/"
+baseURL: 'https://ribbit.anyfrog.net/'
 languageCode: 'ja'
-title: "*ribbit*"
-theme: PaperMod
+title: '*ribbit*'
+theme: 'PaperMod'
 
 hasCJKLanguage: true
 summaryLength: 300
@@ -9,5 +9,5 @@ summaryLength: 300
 params:
   disableSpecial1stPost: true
   socialIcons:
-  - name: "twitter"
-    url: "https://twitter.com/kznrluk"
+  - name: 'twitter'
+    url: 'https://twitter.com/kznrluk'
