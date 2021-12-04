@@ -1,5 +1,6 @@
 ---
 title: "VercelにHugoサイトをデプロイするとテーマが読み込まれない問題"
+summary: "VercelはSSHでのGit Cloneに対応していない。GitのConfigを確認し、URLがSSHでないか確認する。"
 date: 2021-12-04T18:42:40+09:00
 draft: false
 ---

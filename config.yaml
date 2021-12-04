@@ -8,6 +8,19 @@ summaryLength: 300
 
 params:
   disableSpecial1stPost: true
+  description: 普段のプログラミングや技術のことについて書いていきます。
+  images:
+  - /media/cover.jpg
+  homeInfoParams:
+    Title: "`*ribbit*`"
+    Content: >
+      [`@kznrluk`](https://twitter.com/kznrluk) のメモ帳です。
+
+      - 普段のプログラミングや技術のことについて書いていきます。
   socialIcons:
   - name: 'twitter'
     url: 'https://twitter.com/kznrluk'
+  - name: 'github'
+    url: 'https://github.com/kznrluk'
+  - name: 'portfolio'
+    url: 'https://stack.anyfrog.net/'
