@@ -8,7 +8,7 @@ draft: false
 {{< figure src="/media/hugo-vercel-congrats.png" title="いったいこれのどこがCongratulations!だというのか" >}}
 
 ### tldr
-VercelはSSHでのGit Cloneに対応していない。GitのConfigを確認し、URLがSSHでないか確認する。
+VercelはSSHでのGit Cloneに対応していません。GitのConfigを確認し、URLがSSHでないか確認しましょう。
 
 ```plain
 [remote "origin"]
@@ -23,12 +23,12 @@ VercelはSSHでのGit Cloneに対応していない。GitのConfigを確認し�
 ```
 
 ### 詳細
-Hugoで作成した本ページをVercelにデプロイすると画像のようにXMLが直接表示されている状態になってしまった。
+Hugoで作成した本ページをVercelにデプロイすると画像のようにXMLが直接表示されている状態になってしまいました。
 
 {{< figure src="/media/hugo-vercel-page.png" title="RSSが送られてきている様子" >}}
 
-VercelのDeployment Statusを見ると、下記のようなエラー文が出ていることを確認。
-クローン時からWarningに ` Failed to fetch one or more git submodules` とあるように、SubmodulesのクローンでコケていてHugoがレイアウトファイルを見つけることができていないようだ。
+VercelのDeployment Statusを見ると、下記のようなエラー文が出ていることを確認できます。
+クローン時からWarningに ` Failed to fetch one or more git submodules` とあるように、SubmodulesのクローンでコケていてHugoがレイアウトファイルを見つけることができていないようです。
 
 ```
 Cloning github.com/kznrluk/ribbit.anyfrog.net (Branch: master, Commit: 2c3a733)
@@ -51,12 +51,12 @@ WARN 2021/12/04 09:28:12 found no layout file for "HTML" for kind "taxonomy": Yo
 
 ### 解決
 
-検索して解決。
+検索して解決しました。
 
 https://github.com/vercel/vercel/discussions/4566#discussioncomment-479622
 > Vercel supports Git submodules but only cloning them via HTTP or HTTPS, not SSH which is the default.
 
-このエラー文じゃわからんだろ...😇 と思いつつ、`.gitmodules`を参照して下記のように修正。
+このエラー文じゃわからんだろ...😇 と思いつつ、`.gitmodules`を参照して下記のように修正します。
 
 ```plain
 [remote "origin"]
@@ -65,4 +65,4 @@ https://github.com/vercel/vercel/discussions/4566#discussioncomment-479622
         fetch = +refs/heads/*:refs/remotes/origin/*
 ```
 
-見えるようになった。
+見えるようになりました。
