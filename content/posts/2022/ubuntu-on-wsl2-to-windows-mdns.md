@@ -1,5 +1,5 @@
 ---
-title: "WSL2上のLinuxからホストのWindowsにアクセスするにはmDNSを使うのが一番楽"
+title: "WSL2上のLinuxからホストのWindowsのIPを知るにはmDNSを使うのが楽"
 date: 2022-06-19T14:07:26+09:00
 draft: false
 ---
