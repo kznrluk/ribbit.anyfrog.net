@@ -39,7 +39,7 @@ GTXやRTXシリーズのGPUを利用する場合、ドライバ側で並列で�
 ## 少し調査
 `nvidia-open` のリポジトリに下記のIssueを発見しました。
 
-(nvenc not available · Issue #104 · NVIDIA/open-gpu-kernel-modules · GitHub)[https://github.com/NVIDIA/open-gpu-kernel-modules/issues/104]
+[nvenc not available · Issue #104 · NVIDIA/open-gpu-kernel-modules · GitHub](https://github.com/NVIDIA/open-gpu-kernel-modules/issues/104)
 
 原因の特定はされているみたいですが、修正はまだみたいですね。ドライバーにパッチを当てれば動作するという情報もありますが、今回はおとなしくプロプライエタリなドライバを利用することにします。
 
