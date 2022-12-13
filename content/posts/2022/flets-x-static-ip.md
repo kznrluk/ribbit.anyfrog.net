@@ -251,9 +251,9 @@ EOF
 ```
 
 ### TECH LOG 参考になりそうな場所抜粋
+DHCPで降ってきた？IPv6アドレスは240b:から始まるJPNEのもの。
 ```
 show status ipv6 dhcp
-
 DHCPv6 status
 
   LAN1 [server]
@@ -281,7 +281,7 @@ DHCPv6 status
       SNTP server[1]: 2404:1a8:1102::b
       SNTP server[2]: 2404:1a8:1102::a
 
-
+---
 show status ipip
 ------------------- IPIP INFORMATION -------------------
 Number of IPIP tunnels: 1
@@ -294,7 +294,65 @@ TUNNEL[1]:
   Transmitted: (IPv4) 1198 packets [74296 octets]
                (IPv6) 0 packet [0 octet]
   Remote endpoint address: (BRアドレスが表示されている)
---------
+
+---
+show ip route
+Destination         Gateway          Interface       Kind  Additional Info.
+default             -                 TUNNEL[1]    static  
+192.168.182.0/24    192.168.182.1          LAN1  implicit  
+
+---
+show ip route summary
+Protocol   Active    Hidden
+-----------------------------
+Static          1         0
+Implicit        1         0
+Temporary       0         0
+Redirect        0         0
+RIP             0         0
+OSPF            0         0
+BGP             0         0
+-----------------------------
+Total           2         0
+
+---
+show ipv6 route
+Destination              Gateway                  Interface  Type
+(DHCPで降ってきた？IPv6アドレス)::/64   -                        LAN1       implicit
+
+---
+show ipv6 route summary
+Protocol    Active   Hidden
+-----------------------------
+static           0         0
+Implicit         1         0
+Temporary        0         0
+ICMP redirect    0         0
+RA               0         0
+RIPng            0         0
+OSPFv3           0         0
+-----------------------------
+Total            1         0
+
+---
+show nat descriptor address
+NAT/IP masquerade compatibility type : 2
+Reference Descriptor : 1, Assigned Interface : TUNNEL[1](1)
+Masquerade Table
+    Outer address: 27.89.54.24
+    Port range: 60000-64095, 49152-59999, 44096-49151   467 session.
+  -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-
+      No.              Inner   Session Count           Limit         Type
+       1       192.168.182.9             119          250000         dynamic
+       2     192.168.182.100              98          250000         dynamic
+       3     192.168.182.200              75          250000         dynamic
+       4       192.168.182.7              56          250000         dynamic
+       5       192.168.182.4              46          250000         dynamic
+       6       192.168.182.5              45          250000         dynamic
+       7       192.168.182.6              12          250000         dynamic
+       8      192.168.100.10               7          250000         dynamic
+       9       192.168.182.3               7          250000         dynamic
+      10       192.168.182.8               2          250000         dynamic
 ```
 
 ### ログ
