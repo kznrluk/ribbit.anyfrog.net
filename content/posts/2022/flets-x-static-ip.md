@@ -22,7 +22,7 @@ draft: false
 MAP-Eは内部でIPIPトンネリングを利用しているため、スペック不足やフレッツ網の不具合の可能性は低いと予想。
 
 ### RTX1300の場合
-RTX1300のWebGUIからTECHINFOを見ると、IPIPで繋がってるよ的な表示は出るが、IPv4送信パケットが少しだけ存在する以外通信をしている形跡がない状態。IPIPトンネリングの仕様に詳しくないが、Wireshark的な投げっぱなしプロトコルだとすれば繋がってるよ表示はあんまり意味ない可能性がある。
+RTX1300のWebGUIからTECHINFOを見ると、IPIPで繋がってるよ的な表示は出るが、IPv4送信パケットが少しだけ存在する以外通信をしている形跡がない状態。IPIPトンネリングの仕様に詳しくないが、WireGuard的な投げっぱなしプロトコルだとすれば繋がってるよ表示はあんまり意味ない可能性がある。
 
 ```
 show status ipip
@@ -83,8 +83,27 @@ ISPはVNEの回線をローミングしているだけなので、 `「v6プラ�
 
 この時に試行錯誤したコンフィグは付録として載せてあります。
 
-## まとめ
-今後も試行錯誤してみますが、やはりこういうものはすんなりとは行かないものですね。
+## 2022/12/14 追記ここから
+
+ヤマハネットワークエンジニア会、Twitterで多くの皆様に助言をいただいております。ありがとうございます。
+
+いただいたご指摘を簡単に下記でまとめさせていただきます。結論から言うとまだ疎通しておりませんが、設定が怪しい部分もありましたので非常に参考になります。
+
+- Twitter: ルーター自身にIPv6のデフォルトゲートウェイが無いので追加してみては？
+- YNE: 21ipの固定IPサービスを利用しているが、MTUの設定以外同じであった。MTUを外してみては？
+- YNE: IPフィルターのLAN側IPの指定が誤っている。
+- YNE: フィルターをいったんすべて外して切り分け
+- YNE: RTX1300の新機能であるフレキシブルポートを外して見る
+
+付録のコンフィグファイルとTECHINFOについても上記ご指摘に合わせて更新済みです。
+
+## 2022/12/15 追記ここから
+
+ONUとルーターにスイッチを挟んでパケットキャプチャをしたところ、BRアドレスが一文字間違っていることに気がつきました...。紙で届いた認証情報は届いたそのうちにパスワード管理ソフトに入力して原本はしまってしまうのですが、最初の入力時に誤っていたみたいです。
+
+IPIPはUDPのような投げっぱなしのプロトコルなので、接続時のネゴシエーション等がなく送信先を間違えるとパケットが虚無に消えていきます。相手から応答が帰ってこない場合、接続がうまくいっているかうまくいっていないかの判定ができないため、RTXではトンネルUPの表示が出ても通信出来なかったようです。
+
+うまく通信ができない方がいらっしゃいましたら、今一度手元の設定資料が正常に入力されているか確認してみてください。お騒がせしてすみませんでした🙇‍♂️
 
 ## 付録
 
@@ -104,20 +123,29 @@ ip route default gateway tunnel 1
 ip lan1 address 192.168.182.1/24
 
 # FLEX PORT
+# ↓外したが変わらず
 lan flexible-port lan1=1-6,8,10 lan2=9 lan3=7
 
 # NGN
 ngn type lan2 ntt
  ipv6 prefix 1 dhcp-prefix@lan2::/64
+ # ↓transixの設定例では存在するがv6plusの設定例では存在しない
+ # 2022/12/15追記 Yamahaに問い合わせ不要であることを確認済み
+ # ipv6 route default gateway dhcp lan2
  ipv6 lan1 address dhcp-prefix@lan2::(インターフェースID)/64
  ipv6 lan1 rtadv send 1 o_flag=on
  ipv6 lan1 dhcp service server
+ # ↓transixの設定例では存在するがv6plusの設定例では存在しない
+ # 2022/12/15追記 Yamahaに問い合わせ不要であることを確認済み
+ # ipv6 lan2 address dhcp-prefix@lan2::/64
  ipv6 lan2 dhcp service client
 
 # TUNNEL
 tunnel select 1
  tunnel encapsulation ipip
  tunnel endpoint address (BRアドレス)
+ # ↓v6plusの設定例では存在するがtransixの設定例では存在しない
+ # 2022/12/15追記 Yamahaに問い合わせ必要であることを確認済み
  ip tunnel mtu 1460
  ip tunnel nat descriptor 1
  ip tunnel tcp mss limit auto
@@ -153,7 +181,7 @@ tunnel select 1
  ip tunnel secure filter in 200030 200039
  ip tunnel secure filter out 200099 dynamic 200080 200082 200083 200084 200098 200099
  tunnel enable 1
-ip filter 200030 pass * 192.168.100.0/24 icmp * *
+ip filter 200030 pass * 192.168.182.0/24 icmp * *
 ip filter 200039 reject *
 ip filter 200099 pass * * * * *
 ip filter dynamic 200080 * * ftp
@@ -259,21 +287,18 @@ DHCPv6 status
   LAN1 [server]
     state: reply
     state: reply
-    state: reply
-    state: reply
-    state: reply
 
   LAN2 [client]
     state: established
     server:
       address: ::
       preference: 0
-      prefix: (DHCPで降ってきた？IPv6アドレス)/56
-      duration: 1632
-      T1: 816
-      T2: 1306
-      preferred lifetime: 1429
-      valid lifetime: 1633
+      prefix: 240b:11:b901:1800::/56
+      duration: 1844
+      T1: 922
+      T2: 1475
+      preferred lifetime: 1613
+      valid lifetime: 1844
       DNS server[1]: 2404:1a8:7f01:b::3
       DNS server[2]: 2404:1a8:7f01:a::3
       Domain name[1]: flets-east.jp
@@ -287,11 +312,11 @@ show status ipip
 Number of IPIP tunnels: 1
 TUNNEL[1]: 
   Current status is Online.
-  from 2022/12/13 01:45:32.
-  1 minute 36 seconds  connection.
+  from 2022/12/14 12:41:24.
+  58 seconds  connection.
   Received:    (IPv4) 0 packet [0 octet]
                (IPv6) 0 packet [0 octet]
-  Transmitted: (IPv4) 1198 packets [74296 octets]
+  Transmitted: (IPv4) 986 packets [70235 octets]
                (IPv6) 0 packet [0 octet]
   Remote endpoint address: (BRアドレスが表示されている)
 
@@ -318,21 +343,22 @@ Total           2         0
 ---
 show ipv6 route
 Destination              Gateway                  Interface  Type
-(DHCPで降ってきた？IPv6アドレス)::/64   -                        LAN1       implicit
-
+default                  fe80::fa0f:6fff:fe4b:714b 
+                                                  LAN2       temporary
+240b:11:b901:1800::/64   -                        LAN1       implicit
 ---
 show ipv6 route summary
 Protocol    Active   Hidden
 -----------------------------
 static           0         0
 Implicit         1         0
-Temporary        0         0
+Temporary        1         0
 ICMP redirect    0         0
 RA               0         0
 RIPng            0         0
 OSPFv3           0         0
 -----------------------------
-Total            1         0
+Total            2         0
 
 ---
 show nat descriptor address
@@ -340,18 +366,18 @@ NAT/IP masquerade compatibility type : 2
 Reference Descriptor : 1, Assigned Interface : TUNNEL[1](1)
 Masquerade Table
     Outer address: 27.89.54.24
-    Port range: 60000-64095, 49152-59999, 44096-49151   467 session.
+    Port range: 60000-64095, 49152-59999, 44096-49151   169 session.
   -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-    -*-
       No.              Inner   Session Count           Limit         Type
-       1       192.168.182.9             119          250000         dynamic
-       2     192.168.182.100              98          250000         dynamic
-       3     192.168.182.200              75          250000         dynamic
-       4       192.168.182.7              56          250000         dynamic
-       5       192.168.182.4              46          250000         dynamic
-       6       192.168.182.5              45          250000         dynamic
-       7       192.168.182.6              12          250000         dynamic
-       8      192.168.100.10               7          250000         dynamic
-       9       192.168.182.3               7          250000         dynamic
+       1     192.168.182.100              71          250000         dynamic
+       2     192.168.182.200              26          250000         dynamic
+       3       192.168.182.2              19          250000         dynamic
+       4       192.168.182.5              18          250000         dynamic
+       5       192.168.182.3              12          250000         dynamic
+       6       192.168.182.4              10          250000         dynamic
+       7       192.168.182.7               4          250000         dynamic
+       8      192.168.182.27               4          250000         dynamic
+       9       192.168.182.6               3          250000         dynamic
       10       192.168.182.8               2          250000         dynamic
 ```
 
@@ -359,21 +385,26 @@ Masquerade Table
 見たところv6plus更新用のスクリプトも動いている
 
 ```
-2022/12/13 01:42:39: Restart by restart command
-2022/12/13 01:42:39: RTX1300 Rev.23.00.04 (Wed Aug 10 11:40:27 2022) starts
-2022/12/13 01:42:39: main:  RTX1300 ver=00 serial=S78000000 MAC-Address=ac:44:f2:b6:86:00 - ac:44:f2:b6:86:07
-2022/12/13 01:42:39: IP Tunnel[1] Up
-2022/12/13 01:42:39: PORT1-8: PHY is Marvell 88E6193X.
-2022/12/13 01:42:39: PORT9: PHY is Marvell 88X3310.
-2022/12/13 01:42:39: PORT10: PHY is Marvell 88X3310.
-2022/12/13 01:42:39: Add IPv6 prefix ff02::/64 (Lifetime: infinity) via LAN1 by Static
-2022/12/13 01:42:41: [SCHEDULE] Startup: lua emfs:/v6plus_address_notification.lua
-2022/12/13 01:42:43: LAN1: PORT10 link up (10GBASE-T Full Duplex)
-2022/12/13 01:42:44: LAN1: link up
-2022/12/13 01:42:44: LAN2: PORT9 link up (10GBASE-T Full Duplex)
-2022/12/13 01:42:44: LAN2: link up
-2022/12/13 01:42:49: Add IPv6 prefix (DHCPで降ってきた？IPv6アドレス)::/64 (Lifetime: 1687) via LAN1 by DHCPv6
-2022/12/13 01:42:49: [DHCPD] LAN1(port10) Allocates 192.168.182.2: 38:56:10:c6:f3:39
-2022/12/13 01:42:55: [v6plus] Notified IPv6 address to the update server.
-2022/12/13 01:42:55: [v6plus] OK to update IPv6 address. (code=200, body=OK
+2022/12/14 13:05:10: Restart by restart command
+2022/12/14 13:05:10: RTX1300 Rev.23.00.04 (Wed Aug 10 11:40:27 2022) starts
+2022/12/14 13:05:10: main:  RTX1300 ver=00 serial=S78003058 MAC-Address=ac:44:f2:b6:86:00 - ac:44:f2:b6:86:07
+2022/12/14 13:05:11: IP Tunnel[1] Up
+2022/12/14 13:05:11: PORT1-8: PHY is Marvell 88E6193X.
+2022/12/14 13:05:11: PORT9: PHY is Marvell 88X3310.
+2022/12/14 13:05:11: PORT10: PHY is Marvell 88X3310.
+2022/12/14 13:05:11: Add IPv6 prefix ff02::/64 (Lifetime: infinity) via LAN1 by Static
+2022/12/14 13:05:13: [SCHEDULE] Startup: lua emfs:/v6plus_address_notification.lua
+2022/12/14 13:05:14: LAN1: PORT4 link up (1000BASE-T Full Duplex)
+2022/12/14 13:05:14: LAN1: link up
+2022/12/14 13:05:15: LAN2: PORT9 link up (10GBASE-T Full Duplex)
+2022/12/14 13:05:16: LAN2: link up
+2022/12/14 13:05:19: [DHCPD] LAN1(port4) Allocates 192.168.182.4: 38:56:10:c6:f3:39
+2022/12/14 13:05:22: [DHCPD] LAN1(port4) Extends 192.168.182.100: a0:36:bc:83:e4:05
+2022/12/14 13:05:28: Add IPv6 prefix (DHCPで降ってきたアドレス)0::/64 (Lifetime: 1972) via LAN1 by DHCPv6
+2022/12/14 13:05:33: [v6plus] Notified IPv6 address to the update server.
+2022/12/14 13:05:33: [v6plus] OK to update IPv6 address. (code=200, body=OK
+2022/12/14 13:05:39: Login succeeded for HTTP: 192.168.182.200 admin
+2022/12/14 13:05:39: 'administrator' succeeded for HTTP: 192.168.182.200 admin
+2022/12/14 13:05:39: [DHCPD] LAN1(port4) Allocates 192.168.182.5: f8:0f:f9:90:a8:3f
+2022/12/14 13:05:40: [DHCPD] LAN1(port4) Allocates 192.168.182.7: f0:72:ea:f3:93:3d
 ```
