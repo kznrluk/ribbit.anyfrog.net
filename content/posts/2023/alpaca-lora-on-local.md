@@ -35,7 +35,7 @@ FlexGenを試したときにめちゃくちゃメモリを利用した記憶が�
 イメージはGCPデフォルトのCUDA付きイメージを使用。最初さらに新しいイメージがあったのでそれを利用したが、バージョンの違いかCUDAのインストール後に再起動しなかったためかバージョンエラーが出て起動できず。
 
 ### まずは普通に起動させる
-難しいことはありません。
+難しいことはありません。とくにモデルの事前DL等は必要なく、 `generate.py` 内で利用されているTransformerがHuggingFaceでホスティングされているモデルをDLしてきてくれます。
 
 ```
 pip install -r requirements.txt
@@ -46,7 +46,7 @@ python generate.py --base_model 'decapoda-research/llama-7b-hf' --lora_weights '
 
 ### Japanese-Alpaca-LoRAを使うように変更
 
-引数を変えるだけで変更できます。
+引数を変えるだけで変更できます。こちらもモデルの事前DLは必要ありません。
 
 `python generate.py --base_model='decapoda-research/llama-7b-hf' --lora_weights=="kunishou/Japanese-Alpaca-LoRA-7b-v0`
 
