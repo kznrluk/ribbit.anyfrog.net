@@ -1,5 +1,5 @@
 ---
-title: "Arch Linux カーネル更新語のDKMSエラーとダウングレード"
+title: "Arch Linux カーネル更新後のDKMSエラーとダウングレード"
 date: 2023-05-11T01:00:00+09:00
 draft: false
 ---
