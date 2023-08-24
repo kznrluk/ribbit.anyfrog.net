@@ -4,7 +4,7 @@ date: 2023-08-24T19:30:00+09:00
 draft: false
 ---
 
-{{< figure src="/media/home-k8s-init-cover.png" title="大海原" >}}
+{{< figure src="/media/home-k8s-init-cover.png" title="" >}}
 
 自宅クラスタを動かし始めたので、次回構築時に困りそうなところをメモしておきます。
 
@@ -234,9 +234,5 @@ network:
 
 https://docs.tigera.io/calico/latest/networking/ipam/ip-autodetection#autodetection-methods
 
-## 他メモ
-
-### CNIの必要性
-Kubernetesには `kube-proxy` というそれっぽい仕組みがありますが、これはノード間通信してくれるモノではなく、`kube-apiserver` に登録されたServiceのIPアドレスと実際のIPアドレスを変換してくれるものになります。
 
 Cilliumチャレンジに続きます。
