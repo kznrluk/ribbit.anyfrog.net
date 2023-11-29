@@ -1,7 +1,7 @@
 ---
 title: "kubeadmで構築したクラスタに後からドメインを追加したときの証明書エラーを解決する"
 date: 2023-11-29T12:00:00+09:00
-draft: true
+draft: false
 ---
 
 {{< figure src="/media/penguins_standing_ice_floe.png" title="" >}}
