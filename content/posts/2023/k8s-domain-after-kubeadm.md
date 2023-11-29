@@ -11,7 +11,7 @@ draft: false
 ドメインの割り当てはそれほど難しいことではないのですが、 `kubectl` は独自の証明書を `.kube/config` に埋め込んでおり、それがアクセス元ドメインを検証しているため(certSANs)、割り当てた後に再生成を行う必要がありました。
 
 
-```
+```plain
 Unable to connect to the server: x509: certificate is valid for aki0, kubernetes, kubernetes.default, kubernetes.default.svc, kubernetes.default.svc.cluster.local, not aki0.anyfrog.net
 ```
 
@@ -20,7 +20,7 @@ Unable to connect to the server: x509: certificate is valid for aki0, kubernetes
 ## tldr
 
 以下の手順で再生成を行う。 `kubeadm` は部分的に `kubeadm init` を行った時の作業をもう一度行うことができる。
-```
+```bash
 # すでにある証明書の退避 証明書があると後述のコマンドで再生成されない
 mkdir kube_backup && cd kube_backup
 sudo cp -r /etc/kuberenetes/pki/* .
@@ -54,7 +54,7 @@ sudo chown yourname ~/.kube/config
 
 ### configmapをeditしてcertSANsを追加する
 
-```
+```bash
 kubectl edit -n kube-system configmap kubeadm-config
 sudo rm -rf /etc/kubernetes/pki/*
 sudo kubeadm init phase certs all
@@ -64,7 +64,7 @@ sudo kubeadm init phase certs all
 
 ### デフォルトのconfigmapを吐き出して編集
 
-```
+```bash
 sudo kubeadm config print init-defaults > data.yaml
 # .apiServer.certSANSにドメインを追加
 nano data.yaml
