@@ -18,6 +18,8 @@ Unable to connect to the server: x509: certificate is valid for aki0, kubernetes
 その手順が若干ややこしかったのでメモとして残しておきます。
 
 ## tldr
+202312追記: この方法を行ったことが原因か定かではありませんが、この後Kubernetesクラスタ全体の動作が不安定になり `etcd` のみを残してクラスタ全体の再インストールとなってしまいました。参考として記述は残しておきますが、構築後の証明書の更新は避けたほうが無難かもしれません。
+
 
 以下の手順で再生成を行う。 `kubeadm` は部分的に `kubeadm init` を行った時の作業をもう一度行うことができる。
 ```bash
